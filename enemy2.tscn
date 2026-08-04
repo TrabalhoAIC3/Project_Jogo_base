@@ -1,0 +1,25 @@
+[gd_scene load_steps=4 format=3 uid="uid://duoq0s6xfkody"]
+
+[ext_resource type="Script" uid="uid://2h6vgxki5or7" path="res://enemy_2.gd" id="1_jugo2"]
+[ext_resource type="Texture2D" uid="uid://4bta074sw4jr" path="res://Textures/Enemy/ImageToStl.com_merged-document(3).png" id="2_jugo2"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_jugo2"]
+
+[node name="enemy2" type="CharacterBody2D"]
+position = Vector2(30, 21)
+script = ExtResource("1_jugo2")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-5, 8)
+scale = Vector2(1.0416666, 1)
+texture = ExtResource("2_jugo2")
+hframes = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(1, 5)
+shape = SubResource("CapsuleShape2D_jugo2")
+
+[node name="walkTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 0.1
+one_shot = true

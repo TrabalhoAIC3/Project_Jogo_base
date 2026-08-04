@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://ce272dv6pd4ho"]
+
+[ext_resource type="Script" uid="uid://c3ns0vnn7hi4j" path="res://utilidades/hurt_box.gd" id="1_pp3jr"]
+
+[node name="HurtBox" type="Area2D" unique_id=993625550]
+script = ExtResource("1_pp3jr")
+HurtBoxType = null
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1297421133]
+
+[node name="DisableTimer" type="Timer" parent="." unique_id=1760781092]
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]

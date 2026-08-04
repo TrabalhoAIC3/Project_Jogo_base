@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="Enemy" format=3 uid="uid://dml2k6i8ravog"]
+
+[ext_resource type="Script" uid="uid://dmkypcpvicbs0" path="res://EnemyType.gd" id="1_ujvkh"]
+[ext_resource type="Texture2D" uid="uid://cnsmfvjy8tmjx" path="res://Textures/Enemy/kolbold_strong.png" id="2_phgln"]
+
+[resource]
+script = ExtResource("1_ujvkh")
+title = "marco"
+texture = ExtResource("2_phgln")
+metadata/_custom_type_script = "uid://dmkypcpvicbs0"

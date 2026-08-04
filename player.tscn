@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://c8jq01ct6uss"]
+
+[ext_resource type="Script" uid="uid://dnqe8od7cy4fd" path="res://player.gd" id="1_4flbx"]
+[ext_resource type="Texture2D" uid="uid://diwj811quo3w1" path="res://Textures/Player/ImageToStl.com_merged-document(1).png" id="2_onrkg"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_onrkg"]
+radius = 15.0
+height = 74.0
+
+[node name="Player" type="CharacterBody2D" unique_id=700529079]
+script = ExtResource("1_4flbx")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=396229723]
+texture = ExtResource("2_onrkg")
+hframes = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=851899096]
+position = Vector2(23, -1)
+shape = SubResource("CapsuleShape2D_onrkg")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1902660372]
+position = Vector2(18, -4)
+
+[node name="walkTimer" type="Timer" parent="." unique_id=1977802667]
+unique_name_in_owner = true
+wait_time = 0.2
+one_shot = true

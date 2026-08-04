@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://b5qu0a4gfm1ec"]
+
+[ext_resource type="Script" uid="uid://dg8wkcdokfotr" path="res://spawner.gd" id="1_yp5lu"]
+[ext_resource type="Script" uid="uid://dmkypcpvicbs0" path="res://EnemyType.gd" id="2_bphdf"]
+[ext_resource type="Resource" uid="uid://di0l0dxy7y7x5" path="res://Resource/jadson.tres" id="3_7ocbr"]
+[ext_resource type="Resource" uid="uid://dml2k6i8ravog" path="res://Resource/marco.tres" id="4_mv5bd"]
+
+[node name="Spawner" type="Node2D" unique_id=520104714]
+script = ExtResource("1_yp5lu")
+enemy_types = Array[ExtResource("2_bphdf")]([ExtResource("3_7ocbr"), ExtResource("4_mv5bd")])
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1400411916]
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer" unique_id=1097721873]
+offset_left = 482.0
+offset_top = 15.0
+offset_right = 524.0
+offset_bottom = 55.0
+
+[node name="Minute" type="Label" parent="CanvasLayer/HBoxContainer" unique_id=745882452]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+
+[node name="Label2" type="Label" parent="CanvasLayer/HBoxContainer" unique_id=2085758636]
+layout_mode = 2
+text = ":"
+
+[node name="Second" type="Label" parent="CanvasLayer/HBoxContainer" unique_id=236054166]
+unique_name_in_owner = true
+layout_mode = 2
+text = "00"
+
+[node name="Timer" type="Timer" parent="." unique_id=1928539028]
+one_shot = true
+
+[node name="Pattern" type="Timer" parent="." unique_id=256762220]
+wait_time = 10.0
+autostart = true
+
+[node name="Elite" type="Timer" parent="." unique_id=1924579268]
+wait_time = 10.0
+autostart = true

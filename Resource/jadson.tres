@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="Enemy" format=3 uid="uid://di0l0dxy7y7x5"]
+
+[ext_resource type="Script" uid="uid://dmkypcpvicbs0" path="res://EnemyType.gd" id="1_vmjs2"]
+[ext_resource type="Texture2D" uid="uid://ilyhq683whix" path="res://Textures/Enemy/juggernaut.png" id="2_v0nfc"]
+
+[resource]
+script = ExtResource("1_vmjs2")
+title = "jadson"
+texture = ExtResource("2_v0nfc")
+metadata/_custom_type_script = "uid://dmkypcpvicbs0"
