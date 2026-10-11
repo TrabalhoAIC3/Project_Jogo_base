@@ -1,14 +1,14 @@
-[gd_scene format=3 uid="uid://ckxdl872ybwb2"]
+[gd_scene load_steps=6 format=3 uid="uid://ckxdl872ybwb2"]
 
 [ext_resource type="Texture2D" uid="uid://carldo6vnvoos" path="res://Textures/dirt_full_new.png" id="1_sasra"]
 [ext_resource type="PackedScene" uid="uid://c8jq01ct6uss" path="res://player.tscn" id="1_uhqqe"]
 [ext_resource type="PackedScene" uid="uid://b5qu0a4gfm1ec" path="res://spawner.tscn" id="2_2nij2"]
-[ext_resource type="PackedScene" uid="uid://bknyxjp8rjq6u" path="res://enemy.tscn" id="2_ia1lp"]
 [ext_resource type="PackedScene" uid="uid://duoq0s6xfkody" path="res://enemy2.tscn" id="4_coq8p"]
+[ext_resource type="Script" uid="uid://38j3wutl0syu" path="res://game_over.gd" id="5_2nij2"]
 
-[node name="TestScene" type="Node2D" unique_id=929623439]
+[node name="TestScene" type="Node2D"]
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=126418705]
+[node name="Sprite2D" type="Sprite2D" parent="."]
 texture_filter = 4
 texture_repeat = 2
 position = Vector2(597, 100)
@@ -16,14 +16,58 @@ texture = ExtResource("1_sasra")
 region_enabled = true
 region_rect = Rect2(-1632.0787, -1148.0728, 4513.5435, 3149.6953)
 
-[node name="Spawner" parent="." unique_id=1934321429 node_paths=PackedStringArray("player") instance=ExtResource("2_2nij2")]
+[node name="Spawner" parent="." node_paths=PackedStringArray("player") instance=ExtResource("2_2nij2")]
 position = Vector2(786, 254)
 player = NodePath("../Player")
-enemy = ExtResource("2_ia1lp")
+enemy = ExtResource("4_coq8p")
 
-[node name="Player" parent="." unique_id=890350324 instance=ExtResource("1_uhqqe")]
+[node name="Player" parent="." instance=ExtResource("1_uhqqe")]
 position = Vector2(607, 303)
 
-[node name="enemy2" parent="." unique_id=514132650 node_paths=PackedStringArray("player_reference") instance=ExtResource("4_coq8p")]
+[node name="enemy2" parent="." node_paths=PackedStringArray("player_reference") instance=ExtResource("4_coq8p")]
 position = Vector2(217, 99)
+HP = 10
 player_reference = NodePath("../Player")
+separation_weight = 2.0
+
+[node name="GameOver" type="CanvasLayer" parent="."]
+visible = false
+script = ExtResource("5_2nij2")
+
+[node name="Background" type="ColorRect" parent="GameOver"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.9254902)
+
+[node name="Title" type="Label" parent="GameOver"]
+custom_minimum_size = Vector2(300, 80)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -53.5
+offset_top = -13.5
+offset_right = 53.5
+offset_bottom = 13.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 64
+text = "GAME OVER"
+
+[node name="RestartButton" type="Button" parent="GameOver"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -78.0
+offset_top = -175.0
+offset_right = 84.0
+offset_bottom = -144.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "JOGAR NOVAMENTE"

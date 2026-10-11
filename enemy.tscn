@@ -1,24 +1,70 @@
-[gd_scene format=3 uid="uid://bknyxjp8rjq6u"]
+[gd_scene load_steps=9 format=3 uid="uid://bknyxjp8rjq6u"]
 
 [ext_resource type="Script" uid="uid://vlenrusjt1f" path="res://enemy.gd" id="1_7k104"]
 [ext_resource type="Texture2D" uid="uid://da5sxsy0ris5v" path="res://Textures/Enemy/ImageToStl.com_merged-document.png" id="2_4gyqm"]
+[ext_resource type="PackedScene" uid="uid://clgr57my1vfkj" path="res://utilidades/hit_box.tscn" id="2_iifgy"]
+[ext_resource type="PackedScene" uid="uid://ce272dv6pd4ho" path="res://utilidades/HurtBox.tscn" id="3_qi2p4"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_4gyqm"]
 radius = 35.0
 height = 94.0
 
-[node name="Enemy" type="CharacterBody2D" unique_id=548323458]
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_iifgy"]
+radius = 32.46
+height = 97.37
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_epg4t"]
+radius = 31.0
+height = 76.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_iifgy"]
+radius = 106.38
+
+[node name="Enemy" type="CharacterBody2D"]
 script = ExtResource("1_7k104")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=585658398]
+[node name="Hitbox" parent="." instance=ExtResource("2_iifgy")]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-4, 0)
 texture = ExtResource("2_4gyqm")
 hframes = 4
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=718092162]
-position = Vector2(-2, 4)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
+position = Vector2(-1, -1)
 shape = SubResource("CapsuleShape2D_4gyqm")
 
-[node name="walkTimer" type="Timer" parent="." unique_id=1480061654]
+[node name="walkTimer" type="Timer" parent="."]
 unique_name_in_owner = true
 wait_time = 0.1
 one_shot = true
+
+[node name="HurtBox" parent="." instance=ExtResource("3_qi2p4")]
+visible = false
+position = Vector2(16, -5)
+collision_layer = 4
+collision_mask = 4
+
+[node name="CollisionShape2D" parent="HurtBox" index="0"]
+position = Vector2(-22, 7)
+shape = SubResource("CapsuleShape2D_iifgy")
+
+[node name="Hitbox2" parent="." instance=ExtResource("2_iifgy")]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape2D" parent="Hitbox2" index="0"]
+position = Vector2(-4, 3)
+shape = SubResource("CapsuleShape2D_epg4t")
+
+[node name="SeparationArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SeparationArea"]
+position = Vector2(-2, -1)
+shape = SubResource("CircleShape2D_iifgy")
+
+[connection signal="hurt" from="HurtBox" to="." method="_on_hurt_box_hurt"]
+
+[editable path="HurtBox"]
+[editable path="Hitbox2"]

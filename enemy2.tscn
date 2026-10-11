@@ -1,12 +1,27 @@
-[gd_scene load_steps=4 format=3 uid="uid://duoq0s6xfkody"]
+[gd_scene load_steps=9 format=3 uid="uid://duoq0s6xfkody"]
 
 [ext_resource type="Script" uid="uid://2h6vgxki5or7" path="res://enemy_2.gd" id="1_jugo2"]
 [ext_resource type="Texture2D" uid="uid://4bta074sw4jr" path="res://Textures/Enemy/ImageToStl.com_merged-document(3).png" id="2_jugo2"]
+[ext_resource type="PackedScene" uid="uid://ce272dv6pd4ho" path="res://utilidades/HurtBox.tscn" id="3_b3jlp"]
+[ext_resource type="PackedScene" uid="uid://clgr57my1vfkj" path="res://utilidades/hit_box.tscn" id="4_fb6pl"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_jugo2"]
 
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_fb6pl"]
+radius = 8.0
+height = 72.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_cp8lj"]
+radius = 7.0
+height = 72.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_fb6pl"]
+radius = 91.51
+
 [node name="enemy2" type="CharacterBody2D"]
 position = Vector2(30, 21)
+collision_layer = 5
+collision_mask = 5
 script = ExtResource("1_jugo2")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
@@ -23,3 +38,27 @@ shape = SubResource("CapsuleShape2D_jugo2")
 unique_name_in_owner = true
 wait_time = 0.1
 one_shot = true
+
+[node name="HurtBox" parent="." groups=["attack"] instance=ExtResource("3_b3jlp")]
+
+[node name="CollisionShape2D" parent="HurtBox" index="0"]
+position = Vector2(4, 23)
+shape = SubResource("CapsuleShape2D_fb6pl")
+
+[node name="Hitbox" parent="." instance=ExtResource("4_fb6pl")]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape2D" parent="Hitbox" index="0"]
+position = Vector2(5, 21)
+shape = SubResource("CapsuleShape2D_cp8lj")
+
+[node name="SeparationArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SeparationArea"]
+shape = SubResource("CircleShape2D_fb6pl")
+
+[editable path="HurtBox"]
+[editable path="Hitbox"]
