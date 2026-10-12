@@ -1,33 +1,184 @@
 extends CharacterBody2D
 
-@export var HP = 10
-@export var player_reference : CharacterBody2D
+@export var HP: int = 10
+@export var player_reference: CharacterBody2D
 
-var speed : float = 75
+var speed: float = 75.0
 
+# Força da separação entre os inimigos
+@export var separation_weight: float = 2.0
+
+# Cena do cristal de XP
+const XP_GEM_SCENE: PackedScene = preload("res://pickups/XPGem.tscn")
+
+# Nós
 @onready var sprite = $Sprite2D
 @onready var walk_timer = $walkTimer
+@onready var separation_area = $SeparationArea
+@onready var hurt_box = $HurtBox
 
-func _physics_process(delta):
+
+# ==========================================
+# INICIALIZAÇÃO
+# ==========================================
+
+func _ready():
+	add_to_group("enemy")
+
+	# Conecta o sinal de dano ao inimigo
+	# sem duplicar uma conexão que já exista.
+	var damage_callable = Callable(self, "_on_hurt_box_hurt")
+
+	if not hurt_box.hurt.is_connected(damage_callable):
+		hurt_box.hurt.connect(damage_callable)
+
+	print("INIMIGO INICIALIZADO: ", name)
+	print("HP INICIAL: ", HP)
+
+
+# ==========================================
+# MOVIMENTO
+# ==========================================
+
+func _physics_process(_delta):
 	if player_reference == null:
 		return
 
-	velocity = (player_reference.position - position).normalized() * speed
+	if HP <= 0:
+		return
 
-	move_and_collide(velocity * delta)
+	# ==========================================
+	# SEEK
+	# ==========================================
 
-	# Virar sprite
+	var direction = (
+		player_reference.global_position - global_position
+	).normalized()
+
+	# ==========================================
+	# SEPARATION
+	# ==========================================
+
+	var separation = Vector2.ZERO
+
+	for other_enemy in separation_area.get_overlapping_bodies():
+
+		# Ignora o próprio inimigo
+		if other_enemy == self:
+			continue
+
+		# Considera somente outros inimigos
+		if not other_enemy.is_in_group("enemy"):
+			continue
+
+		# Calcula a distância até o outro inimigo
+		var distance_to_enemy = global_position.distance_to(
+			other_enemy.global_position
+		)
+
+		if distance_to_enemy > 0:
+
+			# Direção para longe do outro inimigo
+			var away = (
+				global_position - other_enemy.global_position
+			).normalized()
+
+			# Quanto mais perto, maior o afastamento
+			var strength = 1.0 - (distance_to_enemy / 40.0)
+
+			if strength > 0:
+				separation += away * strength
+
+	# ==========================================
+	# COMBINA SEEK + SEPARATION
+	# ==========================================
+
+	var final_direction = direction
+
+	if separation != Vector2.ZERO:
+		final_direction = (
+			direction + separation * separation_weight
+		).normalized()
+
+	# ==========================================
+	# MOVIMENTO
+	# ==========================================
+
+	velocity = final_direction * speed
+
+	move_and_slide()
+
+	# ==========================================
+	# VIRAR SPRITE
+	# ==========================================
+
 	if velocity.x < 0:
 		sprite.flip_h = true
 	elif velocity.x > 0:
 		sprite.flip_h = false
 
-	# Animação
+	# ==========================================
+	# ANIMAÇÃO
+	# ==========================================
+
 	if velocity != Vector2.ZERO:
+
 		if walk_timer.is_stopped():
+
 			if sprite.frame >= sprite.hframes - 1:
 				sprite.frame = 0
 			else:
 				sprite.frame += 1
 
 			walk_timer.start()
+
+
+# ==========================================
+# DANO E MORTE
+# ==========================================
+
+func _on_hurt_box_hurt(damage):
+
+	# Evita aplicar dano novamente após a morte
+	if HP <= 0:
+		return
+
+	print("INIMIGO RECEBEU DANO: ", damage)
+
+	HP -= damage
+
+	# Impede HP negativo
+	if HP < 0:
+		HP = 0
+
+	print("HP DO INIMIGO: ", HP)
+
+	# ==========================================
+	# MORTE DO INIMIGO
+	# ==========================================
+
+	if HP <= 0:
+
+		print("INIMIGO MORREU!")
+
+		# Guarda a posição da morte
+		var death_position = global_position
+
+		# Cria o cristal de XP
+		var xp_gem = XP_GEM_SCENE.instantiate()
+
+		# Obtém a cena principal
+		var scene_root = get_tree().current_scene
+
+		if scene_root != null:
+
+			# Adiciona o cristal à cena
+			scene_root.add_child(xp_gem)
+
+			# Posiciona o cristal onde o inimigo morreu
+			xp_gem.global_position = death_position
+
+			print("CRISTAL DE XP GERADO!")
+
+		# Remove o inimigo
+		queue_free()

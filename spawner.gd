@@ -1,14 +1,13 @@
 extends Node2D
 
-@export var player : CharacterBody2D
-@export var enemy : PackedScene
+@export var player: CharacterBody2D
+@export var enemy: PackedScene
 
 var distance := 300.0
 
-
-
 var minute := 0
 var second := 0
+
 
 func spawn():
 	var enemy_instance = enemy.instantiate()
@@ -22,12 +21,15 @@ func spawn():
 
 	add_child(enemy_instance)
 
-func amount(number : int = 1):
+
+func amount(number: int = 1):
 	for i in range(number):
 		spawn()
 
+
 func _ready():
 	amount(5)
+
 
 func _on_timer_timeout():
 	second += 1
