@@ -9,7 +9,7 @@ var speed: float = 75.0
 @export var separation_weight: float = 2.0
 
 # Cena do cristal de XP
-const XP_GEM_SCENE: PackedScene = preload("res://pickups/xp_gem.tscn")
+const XP_GEM_SCENE: PackedScene = preload("res://pickups/XPGem.tscn")
 
 @onready var sprite = $Sprite2D
 @onready var walk_timer = $walkTimer
