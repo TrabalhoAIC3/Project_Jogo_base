@@ -1,0 +1,61 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://rl/arena.gd" id="1_arena"]
+[ext_resource type="Script" path="res://rl/shooter_agent.gd" id="2_shooter"]
+[ext_resource type="Script" path="res://rl/knife_agent.gd" id="3_knife"]
+[ext_resource type="Script" path="res://rl/duel_controller.gd" id="4_controller"]
+[ext_resource type="Script" path="res://addons/godot_rl_agents/sync.gd" id="5_sync"]
+
+[sub_resource type="RectangleShape2D" id="ShooterShape"]
+size = Vector2(28, 28)
+
+[sub_resource type="RectangleShape2D" id="KnifeShape"]
+size = Vector2(28, 28)
+
+[node name="DuelArena" type="Node2D"]
+script = ExtResource("1_arena")
+
+[node name="Shooter" type="CharacterBody2D" parent="."]
+position = Vector2(-230, 0)
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("2_shooter")
+opponent_path = NodePath("../KnifeFighter")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Shooter"]
+shape = SubResource("ShooterShape")
+
+[node name="Muzzle" type="Marker2D" parent="Shooter"]
+position = Vector2(22, 0)
+
+[node name="AIController2D" type="Node2D" parent="Shooter"]
+script = ExtResource("4_controller")
+role_feature = 1.0
+reset_after = 5000
+
+[node name="KnifeFighter" type="CharacterBody2D" parent="."]
+position = Vector2(230, 0)
+rotation = 3.141593
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("3_knife")
+opponent_path = NodePath("../Shooter")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="KnifeFighter"]
+shape = SubResource("KnifeShape")
+
+[node name="AIController2D" type="Node2D" parent="KnifeFighter"]
+script = ExtResource("4_controller")
+role_feature = -1.0
+reset_after = 5000
+
+[node name="Sync" type="Node" parent="."]
+script = ExtResource("5_sync")
+onnx_model_path = "res://models/duel_training_20261031_175756.onnx"
+control_mode = 2
+action_repeat = 8
+speed_up = 1.0
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(0, 0)
+enabled = true

@@ -6,7 +6,7 @@ const SPEED: float = 150.0
 # ATAQUE
 # =========================
 
-var iceSpear = preload("res://attack/ice_spear.tscn")
+var iceSpear = preload("res://Font/attack/ice_spear.tscn")
 
 @onready var iceSpearTimer = get_node("%iceSpearTimer")
 @onready var iceSpearAttackTimer = get_node("%iceSpearAttackTimer")

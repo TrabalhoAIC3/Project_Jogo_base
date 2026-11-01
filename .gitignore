@@ -1,3 +1,39 @@
-# Godot 4+ specific ignores
+# Godot
 .godot/
-/android/
+.export/
+android/
+ios/
+
+# C# / .NET
+bin/
+obj/
+*.csproj.user
+
+# Python
+.venv/
+.venv-rl/
+venv/
+__pycache__/
+*.py[cod]
+
+# Logs
+logs/
+*.log
+
+# Backups
+*.backup
+*.backup_*
+*.before_*
+backup_*/
+
+# Modelos auxiliares e checkpoints
+models/*.zip
+models/*_raw.onnx
+models/*.onnx.data
+models/duel_inference_embedded.onnx
+models/duel_recovered_*.onnx
+
+# Sistema
+.env
+.DS_Store
+Thumbs.db
