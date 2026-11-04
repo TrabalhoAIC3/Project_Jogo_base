@@ -50,6 +50,10 @@ func _physics_process(_delta):
 
 	move_and_slide()
 
+	# Envia a posição do jogador para os outros participantes da sala.
+	if WebSocketClient.is_connected_to_server() and WebSocketClient.current_room.get("started", false):
+		WebSocketClient.send_message({"type": "game_move", "x": global_position.x, "y": global_position.y})
+
 	# =========================
 	# VIRAR SPRITE
 	# =========================
