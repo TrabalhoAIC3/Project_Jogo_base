@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://ckxdl872ybwb2"]
+[gd_scene format=3 uid="uid://ckxdl872ybwb2"]
 
 [ext_resource type="Texture2D" uid="uid://carldo6vnvoos" path="res://Textures/dirt_full_new.png" id="1_sasra"]
 [ext_resource type="PackedScene" uid="uid://c8jq01ct6uss" path="res://player.tscn" id="1_uhqqe"]
@@ -6,9 +6,9 @@
 [ext_resource type="PackedScene" uid="uid://duoq0s6xfkody" path="res://enemy2.tscn" id="4_coq8p"]
 [ext_resource type="Script" uid="uid://38j3wutl0syu" path="res://game_over.gd" id="5_2nij2"]
 
-[node name="TestScene" type="Node2D"]
+[node name="TestScene" type="Node2D" unique_id=781765814]
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=591295691]
 texture_filter = 4
 texture_repeat = 2
 position = Vector2(597, 100)
@@ -16,25 +16,23 @@ texture = ExtResource("1_sasra")
 region_enabled = true
 region_rect = Rect2(-1632.0787, -1148.0728, 4513.5435, 3149.6953)
 
-[node name="Spawner" parent="." node_paths=PackedStringArray("player") instance=ExtResource("2_2nij2")]
+[node name="Spawner" parent="." unique_id=892305151 node_paths=PackedStringArray("player") instance=ExtResource("2_2nij2")]
 position = Vector2(786, 254)
 player = NodePath("../Player")
 enemy = ExtResource("4_coq8p")
 
-[node name="Player" parent="." instance=ExtResource("1_uhqqe")]
+[node name="Player" parent="." unique_id=533480772 instance=ExtResource("1_uhqqe")]
 position = Vector2(607, 303)
 
-[node name="enemy2" parent="." node_paths=PackedStringArray("player_reference") instance=ExtResource("4_coq8p")]
+[node name="enemy2" parent="." unique_id=1983044423 node_paths=PackedStringArray("player_reference") instance=ExtResource("4_coq8p")]
 position = Vector2(217, 99)
-HP = 10
 player_reference = NodePath("../Player")
-separation_weight = 2.0
 
-[node name="GameOver" type="CanvasLayer" parent="."]
+[node name="GameOver" type="CanvasLayer" parent="." unique_id=2018287587]
 visible = false
 script = ExtResource("5_2nij2")
 
-[node name="Background" type="ColorRect" parent="GameOver"]
+[node name="Background" type="ColorRect" parent="GameOver" unique_id=853548070]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -42,7 +40,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.9254902)
 
-[node name="Title" type="Label" parent="GameOver"]
+[node name="Title" type="Label" parent="GameOver" unique_id=1066018790]
 custom_minimum_size = Vector2(300, 80)
 anchors_preset = 8
 anchor_left = 0.5
@@ -58,7 +56,7 @@ grow_vertical = 2
 theme_override_font_sizes/font_size = 64
 text = "GAME OVER"
 
-[node name="RestartButton" type="Button" parent="GameOver"]
+[node name="RestartButton" type="Button" parent="GameOver" unique_id=782911028]
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
