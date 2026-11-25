@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://b3ei4ccqd1c53" path="res://pickups/xp_gem.gd" id="1_cvt6w"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_p5v8h"]
+radius = 24.0
 
 [node name="XpGem" type="Area2D"]
 script = ExtResource("1_cvt6w")

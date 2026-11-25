@@ -71,7 +71,7 @@ func _process(_delta: float) -> void:
 				if message.get("type") == "welcome":
 					client_id = str(message.get("client_id", ""))
 					lobby_version = int(message.get("lobby_version", 0))
-				elif message.get("type") in ["room_state", "game_started"]:
+				elif message.get("type") in ["room_state", "game_started", "player_move"]:
 					current_room = message.get("room", {})
 					last_room_code = str(current_room.get("code", last_room_code))
 				elif message.get("type") == "room_left":

@@ -7,4 +7,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.20.1" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="server/**/*.cs" />
+    <Compile Remove="server-tests/**/*.cs" />
+  </ItemGroup>
 </Project>

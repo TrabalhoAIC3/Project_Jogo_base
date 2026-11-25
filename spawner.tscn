@@ -29,11 +29,3 @@ text = "00"
 
 [node name="Timer" type="Timer" parent="."]
 one_shot = true
-
-[node name="Pattern" type="Timer" parent="."]
-wait_time = 10.0
-autostart = true
-
-[node name="Elite" type="Timer" parent="."]
-wait_time = 10.0
-autostart = true

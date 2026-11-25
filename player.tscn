@@ -65,10 +65,10 @@ position = Vector2(2, 17)
 shape = SubResource("CircleShape2D_i3pqv")
 
 [node name="ProgressBar" type="ProgressBar" parent="."]
-offset_left = -33.0
-offset_top = 63.0
-offset_right = 55.0
-offset_bottom = 68.0
+offset_left = -28.0
+offset_top = -76.0
+offset_right = 28.0
+offset_bottom = -69.0
 theme_override_styles/fill = SubResource("StyleBoxFlat_i3pqv")
 value = 100.0
 show_percentage = false

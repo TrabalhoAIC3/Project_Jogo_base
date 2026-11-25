@@ -3,6 +3,8 @@ extends CharacterBody2D
 @export var HP: int = 10
 @export var player_reference: CharacterBody2D
 
+var network_id := ""
+var network_remote := false
 var speed: float = 75.0
 
 # Força da separação entre os inimigos
@@ -16,6 +18,7 @@ const XP_GEM_SCENE: PackedScene = preload("res://pickups/XPGem.tscn")
 @onready var walk_timer = $walkTimer
 @onready var separation_area = $SeparationArea
 @onready var hurt_box = $HurtBox
+@onready var health_bar: ProgressBar = get_node_or_null("HealthBar")
 
 
 # ==========================================
@@ -24,6 +27,9 @@ const XP_GEM_SCENE: PackedScene = preload("res://pickups/XPGem.tscn")
 
 func _ready():
 	add_to_group("enemy")
+	if health_bar != null:
+		health_bar.max_value = HP
+		health_bar.value = HP
 
 	# Conecta o sinal de dano ao inimigo
 	# sem duplicar uma conexão que já exista.
@@ -32,8 +38,40 @@ func _ready():
 	if not hurt_box.hurt.is_connected(damage_callable):
 		hurt_box.hurt.connect(damage_callable)
 
-	print("INIMIGO INICIALIZADO: ", name)
-	print("HP INICIAL: ", HP)
+
+func set_network_remote(value: bool) -> void:
+	network_remote = value
+	var hitbox: Area2D = get_node_or_null("Hitbox")
+	if hitbox != null:
+		hitbox.monitoring = not value
+		hitbox.monitorable = not value
+
+
+func apply_network_state(position: Vector2, health: int) -> void:
+	global_position = position
+	HP = health
+	if health_bar != null:
+		health_bar.value = HP
+
+
+func take_network_damage(damage: int) -> void:
+	if not network_remote:
+		_apply_damage(damage)
+
+
+func _nearest_player() -> Node2D:
+	var nearest: Node2D
+	var nearest_distance := INF
+	for candidate in get_tree().get_nodes_in_group("player"):
+		if not candidate is Node2D or candidate.is_queued_for_deletion():
+			continue
+		var candidate_distance := global_position.distance_squared_to(candidate.global_position)
+		if candidate_distance < nearest_distance:
+			nearest = candidate
+			nearest_distance = candidate_distance
+	if nearest == null and is_instance_valid(player_reference):
+		nearest = player_reference
+	return nearest
 
 
 # ==========================================
@@ -41,19 +79,18 @@ func _ready():
 # ==========================================
 
 func _physics_process(_delta):
-	if player_reference == null:
+	if network_remote or HP <= 0:
 		return
 
-	if HP <= 0:
+	var target := _nearest_player()
+	if target == null:
 		return
 
 	# ==========================================
 	# SEEK
 	# ==========================================
 
-	var direction = (
-		player_reference.global_position - global_position
-	).normalized()
+	var direction := (target.global_position - global_position).normalized()
 
 	# ==========================================
 	# SEPARATION
@@ -138,20 +175,34 @@ func _physics_process(_delta):
 # ==========================================
 
 func _on_hurt_box_hurt(damage):
+	if network_remote:
+		if not network_id.is_empty() and WebSocketClient.is_connected_to_server():
+			WebSocketClient.send_message({
+				"type": "enemy_hit",
+				"enemy_id": network_id,
+				"damage": int(damage)
+			})
+		return
+	_apply_damage(int(damage))
+
+
+func _apply_damage(damage: int) -> void:
 
 	# Evita aplicar dano novamente após a morte
 	if HP <= 0:
 		return
 
-	print("INIMIGO RECEBEU DANO: ", damage)
-
+	sprite.modulate = Color("ff7777")
+	var hit_flash := create_tween()
+	hit_flash.tween_property(sprite, "modulate", Color.WHITE, 0.18)
 	HP -= damage
 
 	# Impede HP negativo
 	if HP < 0:
 		HP = 0
 
-	print("HP DO INIMIGO: ", HP)
+	if health_bar != null:
+		health_bar.value = HP
 
 	# ==========================================
 	# MORTE DO INIMIGO
@@ -159,13 +210,12 @@ func _on_hurt_box_hurt(damage):
 
 	if HP <= 0:
 
-		print("INIMIGO MORREU!")
-
 		# Guarda a posição da morte
 		var death_position = global_position
 
 		# Cria o cristal de XP
 		var xp_gem = XP_GEM_SCENE.instantiate()
+		xp_gem.network_id = "gem-" + network_id if not network_id.is_empty() else ""
 
 		# Obtém a cena principal
 		var scene_root = get_tree().current_scene
@@ -177,8 +227,6 @@ func _on_hurt_box_hurt(damage):
 
 			# Posiciona o cristal onde o inimigo morreu
 			xp_gem.global_position = death_position
-
-			print("CRISTAL DE XP GERADO!")
 
 		# Remove o inimigo
 		queue_free()

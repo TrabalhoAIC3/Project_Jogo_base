@@ -21,7 +21,7 @@ internal static class LobbyTests
                 sockets.Add(socket);
                 await socket.ConnectAsync(uri, token);
                 var hello = await Read(socket, "welcome");
-                Check(hello["lobby_version"]!.GetValue<int>() == 1, "versão do lobby");
+                Check(hello["lobby_version"]!.GetValue<int>() == 2, "versão do lobby");
                 return socket;
             }
             async Task Send(ClientWebSocket socket, object data) => await socket.SendAsync(
@@ -79,6 +79,19 @@ internal static class LobbyTests
             await Send(a, new { type = "game_start" });
             Check((await Read(a, "game_started"))["room"]!["started"]!.GetValue<bool>(), "início pelo anfitrião");
             await Read(b, "game_started");
+            await Send(a, new {
+                type = "game_state",
+                enemies = new[] { new { id = "enemy-1", x = 20, y = 30, hp = 5 } },
+                gems = new[] { new { id = "gem-1", x = 10, y = 15, amount = 10 } }
+            });
+            var world = await Read(b, "game_state");
+            Check(world["enemies"]![0]!["id"]!.GetValue<string>() == "enemy-1", "mundo do anfitrião sincronizado");
+            Check(world["gems"]![0]!["id"]!.GetValue<string>() == "gem-1", "XP do chão sincronizado");
+            await Send(b, new { type = "enemy_hit", enemy_id = "enemy-1", damage = 3 });
+            Check((await Read(a, "enemy_hit"))["damage"]!.GetValue<int>() == 3, "dano remoto encaminhado ao anfitrião");
+            await Send(b, new { type = "xp_collect", gem_id = "gem-1" });
+            Check((await Read(a, "xp_collected"))["player_id"]!.GetValue<string>() == bId, "coleta XP notifica anfitrião");
+            Check((await Read(b, "xp_collected"))["amount"]!.GetValue<int>() == 10, "coleta XP notifica coletor");
             await Send(d, new { type = "room_join", code, name = "D" });
             await Read(d, "error");
             await Send(a, new { type = "lobby_list" });

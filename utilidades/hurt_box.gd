@@ -10,30 +10,22 @@ signal hurt(damage)
 
 
 func _on_area_entered(area: Area2D) -> void:
-
-	print(
-		"HURTBOX: ", get_path(),
-		" | AREA DETECTADA: ", area.name,
-		" | CAMINHO: ", area.get_path()
-	)
-
 	# Verifica se a área pertence ao grupo de ataques
 	if not area.is_in_group("attack"):
-		print("Não é um ataque.")
 		return
 
-	print("É um ATAQUE!")
+	# Projéteis de uso único avisam antes de aplicar dano, evitando hits duplicados.
+	if area.has_method("try_consume") and not area.try_consume():
+		return
 
 	# Obtém o dano do ataque
 	var attack_damage = area.get("damage")
 
 	if attack_damage == null:
-		print("ERRO: o ataque não possui a variável damage.")
+		push_warning("A área de ataque não define dano: %s" % area.get_path())
 		return
 
 	var damage: int = int(attack_damage)
-
-	print("DANO DETECTADO: ", damage)
 
 	# Aplica o comportamento configurado
 	match HurtBoxType:
@@ -51,8 +43,6 @@ func _on_area_entered(area: Area2D) -> void:
 
 	# Emite o sinal de dano
 	hurt.emit(damage)
-
-	print("SINAL HURT EMITIDO!")
 
 
 func _on_disable_timer_timeout() -> void:

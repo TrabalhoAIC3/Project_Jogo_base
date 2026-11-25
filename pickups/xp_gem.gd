@@ -1,58 +1,72 @@
 extends Area2D
 
-# ==========================================
-# CONFIGURAÇÃO DO CRISTAL DE XP
-# ==========================================
-
 @export var amount: int = 10
 
+const MAGNET_RADIUS := 190.0
+const PICKUP_RADIUS := 30.0
+const MAGNET_SPEED := 300.0
 
-# ==========================================
-# INICIALIZAÇÃO
-# ==========================================
+var network_id := ""
+var network_remote := false
+var _collection_requested := false
+var _retry_elapsed := 0.0
+
 
 func _ready() -> void:
-	# Ativa a detecção da área
+	add_to_group("xp_gem")
 	monitoring = true
 	monitorable = true
-
-	# Configura a aparência do cristal
-	var crystal: Polygon2D = $Polygon2D
-
-	crystal.polygon = PackedVector2Array([
+	$Polygon2D.polygon = PackedVector2Array([
 		Vector2(0, -8),
 		Vector2(6, 0),
 		Vector2(0, 8),
 		Vector2(-6, 0)
 	])
-
-	crystal.color = Color("#42F5D7")
-
-	# Conecta o sinal de coleta
-	if not body_entered.is_connected(_on_body_entered):
-		body_entered.connect(_on_body_entered)
-
-	print("CRISTAL DE XP CRIADO: ", amount, " XP")
+	$Polygon2D.color = Color("42f5d7")
+	$Polygon2D.scale = Vector2(1.5, 1.5)
 
 
-# ==========================================
-# COLETAR XP
-# ==========================================
-
-func _on_body_entered(body: Node2D) -> void:
-	# Verifica se o corpo é o jogador
-	if not body.is_in_group("player"):
+func _process(delta: float) -> void:
+	if _collection_requested:
+		_retry_elapsed += delta
+		if _retry_elapsed < 0.5:
+			return
+		_retry_elapsed = 0.0
+		_send_collection_request()
 		return
 
-	# Confere se o jogador já possui a função de XP
-	if not body.has_method("gain_xp"):
-		print("ERRO: o Player ainda não possui a função gain_xp().")
+	var local_players := get_tree().get_nodes_in_group("local_player")
+	if local_players.is_empty():
+		return
+	var player := local_players[0] as Node2D
+	if not is_instance_valid(player):
 		return
 
-	# Concede experiência
-	body.gain_xp(amount)
+	var distance := global_position.distance_to(player.global_position)
+	if distance <= MAGNET_RADIUS:
+		global_position = global_position.move_toward(player.global_position, MAGNET_SPEED * delta)
+	if global_position.distance_to(player.global_position) > PICKUP_RADIUS:
+		return
 
-	print("XP COLETADA: ", amount)
+	if WebSocketClient.is_connected_to_server() and WebSocketClient.current_room.get("started", false):
+		if network_id.is_empty():
+			network_id = "xp-%s" % get_instance_id()
+		_send_collection_request()
+		return
 
-	# Remove o cristal após a coleta
+	if player.has_method("gain_xp"):
+		player.gain_xp(amount)
 	queue_free()
+
+
+func _send_collection_request() -> void:
+	var result := WebSocketClient.send_message({
+		"type": "xp_collect",
+		"gem_id": network_id
+	})
+	_collection_requested = result == OK
+
+
+func apply_network_position(position: Vector2) -> void:
+	if network_remote:
+		global_position = position

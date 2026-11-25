@@ -24,6 +24,19 @@ var enemy_close: Array[Node2D] = []
 # =========================
 
 @export var HP: int = 100
+var XP: int = 0
+
+
+func _ready() -> void:
+	add_to_group("player")
+	add_to_group("local_player")
+	health_bar.max_value = HP
+	health_bar.value = HP
+	attack()
+
+
+func gain_xp(amount: int) -> void:
+	XP += maxi(amount, 0)
 
 # =========================
 # NÓS
@@ -37,22 +50,10 @@ var enemy_close: Array[Node2D] = []
 @onready var game_over = get_parent().get_node("GameOver")
 
 
-func _ready():
-	# Configura a barra de vida
-	health_bar.max_value = HP
-	health_bar.value = HP
-
-	attack()
-
-
 func _physics_process(_delta):
 	velocity = Input.get_vector("left", "right", "up", "down") * SPEED
 
 	move_and_slide()
-
-	# Envia a posição do jogador para os outros participantes da sala.
-	if WebSocketClient.is_connected_to_server() and WebSocketClient.current_room.get("started", false):
-		WebSocketClient.send_message({"type": "game_move", "x": global_position.x, "y": global_position.y})
 
 	# =========================
 	# VIRAR SPRITE
@@ -69,13 +70,13 @@ func _physics_process(_delta):
 
 	if velocity != Vector2.ZERO:
 		if walk_timer.is_stopped():
-
 			if sprite.frame >= sprite.hframes - 1:
 				sprite.frame = 0
 			else:
 				sprite.frame += 1
-
 			walk_timer.start()
+	elif sprite.frame != 0:
+		sprite.frame = 0
 
 
 # ==================================================
@@ -113,20 +114,21 @@ func _on_ice_spear_attack_timer_timeout():
 	if icespear_amo <= 0:
 		return
 
-	# Escolhe o alvo ANTES de adicionar a lança na árvore
-	var target_position = get_random_target()
+	# Só atira quando há um inimigo válido para perseguir.
+	var target_enemy: Node2D = get_random_target()
+	if target_enemy == null:
+		icespear_amo = 0
+		iceSpearAttackTimer.stop()
+		return
 
 	# Cria a lança
 	var icespear_attack = iceSpear.instantiate()
 
-	# IMPORTANTE:
-	# Define tudo ANTES do add_child()
-	icespear_attack.global_position = global_position
-	icespear_attack.target = target_position
+	icespear_attack.target = target_enemy
 	icespear_attack.level = icespear_level
 
-	# Agora adiciona na árvore
 	get_parent().add_child(icespear_attack)
+	icespear_attack.global_position = global_position + Vector2(0, -18)
 
 	# Diminui munição
 	icespear_amo -= 1
@@ -142,25 +144,14 @@ func _on_ice_spear_attack_timer_timeout():
 # ESCOLHER INIMIGO
 # ==================================================
 
-func get_random_target() -> Vector2:
-
-	# Remove inimigos que já foram destruídos
+func get_random_target() -> Node2D:
 	for enemy in enemy_close.duplicate():
-
-		if not is_instance_valid(enemy):
+		if not is_instance_valid(enemy) or enemy.is_queued_for_deletion():
 			enemy_close.erase(enemy)
 
-	# Se houver inimigos próximos
 	if enemy_close.size() > 0:
-
-		var enemy = enemy_close.pick_random()
-
-		if is_instance_valid(enemy):
-			return enemy.global_position
-
-	# Se não houver inimigo
-	# dispara para cima
-	return global_position + Vector2.UP * 100.0
+		return enemy_close.pick_random()
+	return null
 
 
 # ==================================================
@@ -173,19 +164,13 @@ func _on_enemy_detection_area_body_entered(body: Node2D):
 		return
 
 	if not enemy_close.has(body):
-
 		enemy_close.append(body)
-
-		print("INIMIGO DETECTADO: ", body.name)
 
 
 func _on_enemy_detection_area_body_exited(body: Node2D):
 
 	if enemy_close.has(body):
-
 		enemy_close.erase(body)
-
-		print("INIMIGO SAIU DO ALCANCE: ", body.name)
 
 
 # ==================================================
@@ -193,9 +178,9 @@ func _on_enemy_detection_area_body_exited(body: Node2D):
 # ==================================================
 
 func _on_hurt_box_hurt(damage):
-
-	print("PLAYER RECEBEU DANO: ", damage)
-
+	sprite.modulate = Color("ff7777")
+	var hit_flash := create_tween()
+	hit_flash.tween_property(sprite, "modulate", Color.WHITE, 0.18)
 	HP -= damage
 
 	# Impede que o HP fique negativo
@@ -205,12 +190,7 @@ func _on_hurt_box_hurt(damage):
 	# Atualiza a barra de vida
 	health_bar.value = HP
 
-	print("HP DO PLAYER: ", HP)
-
 	if HP <= 0:
-
-		print("PLAYER MORREU")
-
 		# Mostra a tela de Game Over
 		game_over.show_game_over()
 

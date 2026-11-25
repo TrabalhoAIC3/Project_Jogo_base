@@ -35,7 +35,7 @@ public static class ServerApp
             try
             {
                 // O welcome deve chegar antes de qualquer broadcast.
-                await client.SendAsync(new { type = "welcome", client_id = client.Id, lobby_version = 1 }, token);
+                await client.SendAsync(new { type = "welcome", client_id = client.Id, lobby_version = 2 }, token);
                 clients[client.Id] = client;
                 var buffer = new byte[4096];
                 while (socket.State == WebSocketState.Open && !token.IsCancellationRequested)
@@ -91,6 +91,9 @@ public static class ServerApp
                             case "room_ready":
                             case "game_start":
                             case "game_move":
+                            case "game_state":
+                            case "enemy_hit":
+                            case "xp_collect":
                                 await lobby.HandleAsync(client.Id, type, root, token);
                                 break;
                             case "ping":
