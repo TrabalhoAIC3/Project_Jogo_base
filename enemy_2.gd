@@ -6,6 +6,9 @@ extends CharacterBody2D
 var network_id := ""
 var network_remote := false
 var speed: float = 75.0
+var _network_target_position := Vector2.ZERO
+var _network_position_initialized := false
+var _network_animation_elapsed := 0.0
 
 # Força da separação entre os inimigos
 @export var separation_weight: float = 2.0
@@ -48,7 +51,13 @@ func set_network_remote(value: bool) -> void:
 
 
 func apply_network_state(position: Vector2, health: int) -> void:
-	global_position = position
+	if network_remote:
+		if not _network_position_initialized:
+			global_position = position
+			_network_position_initialized = true
+		_network_target_position = position
+	else:
+		global_position = position
 	HP = health
 	if health_bar != null:
 		health_bar.value = HP
@@ -168,6 +177,24 @@ func _physics_process(_delta):
 				sprite.frame += 1
 
 			walk_timer.start()
+
+
+func _process(delta: float) -> void:
+	if not network_remote or not _network_position_initialized:
+		return
+	var previous_position := global_position
+	global_position = global_position.lerp(_network_target_position, minf(delta * 18.0, 1.0))
+	var movement := _network_target_position - previous_position
+	if movement.length_squared() > 0.25:
+		if absf(movement.x) > 0.1:
+			sprite.flip_h = movement.x < 0.0
+		_network_animation_elapsed += delta
+		if _network_animation_elapsed >= 0.12:
+			sprite.frame = (sprite.frame + 1) % sprite.hframes
+			_network_animation_elapsed = 0.0
+	else:
+		sprite.frame = 0
+		_network_animation_elapsed = 0.0
 
 
 # ==========================================

@@ -5,7 +5,7 @@ const PLAYER_TWO_TEXTURE: Texture2D = preload("res://Textures/Player/player2.png
 const ENEMY_SCENE: PackedScene = preload("res://enemy2.tscn")
 const XP_GEM_SCENE: PackedScene = preload("res://pickups/XPGem.tscn")
 const POSITION_INTERVAL := 0.05
-const WORLD_STATE_INTERVAL := 0.1
+const WORLD_STATE_INTERVAL := 0.05
 
 var _info: Label
 var _xp_info: Label
